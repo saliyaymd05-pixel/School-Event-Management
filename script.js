@@ -28,7 +28,7 @@ let events = [
     max_participants: 500,
     image: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=800&q=80"
   },
-  {
+ {
     id: 3,
     title: "Annual Cultural Day",
     description: "Student music performances, dance, and theatrical plays.",
@@ -38,7 +38,7 @@ let events = [
     venue: "School Open Air Stage",
     status: "Open for Registration",
     max_participants: 600,
-    image: "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=800&q=80"
+    image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80"
   },
   {
     id: 4,
