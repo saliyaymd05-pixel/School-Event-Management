@@ -38,7 +38,7 @@ let events = [
     venue: "School Open Air Stage",
     status: "Open for Registration",
     max_participants: 600,
-    image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80"
+    image: "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=800&q=80"
   },
   {
     id: 4,
