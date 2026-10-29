@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EventSchool - School Event Management System</title>
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Bar / Role Selector -->
+  <div class="top-announcement">
+    <div class="announcement-text">
+      <i class="fa-solid fa-school"></i> <strong>EventSchool Platform:</strong> School Event Management System
+    </div>
+    <div class="role-selector">
+      <span>Logged in as:</span>
+      <select id="userRoleSelect" onchange="changeUserRole(this.value)">
+        <option value="Admin">Admin</option>
+        <option value="Coordinator">Coordinator</option>
+        <option value="Volunteer">Volunteer</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Main Navigation Header -->
+  <header class="main-header">
+    <div class="header-container">
+      <a href="#home" class="brand-logo">
+        <div class="logo-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+        <span>EventSchool</span>
+      </a>
+
+      <nav class="nav-links" id="navMenu">
+        <a href="#home" class="nav-link active">Home</a>
+        <a href="#events" class="nav-link">Events</a>
+        <a href="#categories" class="nav-link">Categories</a>
+        <a href="#schedule" class="nav-link">Schedule</a>
+        <a href="#gallery" class="nav-link">Gallery</a>
+        <a href="#about" class="nav-link">About</a>
+        <a href="#contact" class="nav-link">Contact</a>
+        <a href="#dashboard" class="nav-link btn-dash"><i class="fa-solid fa-gauge"></i> Admin Dashboard</a>
+      </nav>
+
+      <div class="header-actions">
+        <a href="#events" class="btn btn-primary">Explore Events</a>
+        <button class="hamburger-btn" onclick="toggleMobileMenu()">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section with Updated School Image Collage -->
+  <section id="home" class="hero-section">
+    <div class="hero-container">
+      <div class="hero-content">
+        <span class="badge badge-accent"><i class="fa-solid fa-star"></i> Premier School Management</span>
+        <h1 class="hero-title">Every Event Begins with a <span>Great Plan.</span></h1>
+        <p class="hero-subtitle">Discover, organize, and celebrate unforgettable school events, competitions, and parent-teacher meetings in one place.</p>
+        
+        <div class="hero-buttons">
+          <a href="#events" class="btn btn-primary btn-lg"><i class="fa-solid fa-compass"></i> Explore Events</a>
+          <button onclick="openModal('createEventModal')" class="btn btn-outline btn-lg"><i class="fa-solid fa-plus-circle"></i> Create Event</button>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat-item">
+            <h3>35+</h3>
+            <p>School Events</p>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <h3>2,400+</h3>
+            <p>Students & Parents</p>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <h3>85+</h3>
+            <p>Active Volunteers</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Updated School Hero Visual -->
+      <div class="hero-visual">
+        <div class="image-grid">
+          <!-- Main Top Image: School Science Fair / Exhibition -->
+            <img src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=1000&q=80" alt="School Science Fair 2026" class="grid-img img-main">
+
+            <!-- Sub Image 1: School Auditorium / Cultural Stage -->
+          <img src="https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=600&q=80" alt="Cultural Stage Performance" class="grid-img img-sub-1">
+
+            <!-- Sub Image 2: Sports Day Track & Sprint -->
+            <img src="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=600&q=80" alt="Inter-House Sports Sprint" class="grid-img img-sub-2">
+        </div>
+
+        <!-- Animated Floating Badges -->
+        <div class="floating-badge badge-1">
+          <i class="fa-solid fa-flask-vial"></i>
+          <div>
+            <strong>Registrations Open</strong>
+            <small>Annual Science Fair 2026</small>
+          </div>
+        </div>
+
+        <div class="floating-badge badge-2">
+          <i class="fa-solid fa-trophy"></i>
+          <div>
+            <strong>Inter-House Championship</strong>
+            <small>Annual Sports Day</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Event Search & Listing -->
+  <section id="events" class="section-container">
+    <div class="section-header text-center">
+      <span class="section-subtitle">School Activities</span>
+      <h2 class="section-title">Discover School Events</h2>
+      <p class="section-desc">Search through science fairs, athletic meets, workshops, and parent-teacher gatherings.</p>
+    </div>
+
+    <!-- Search & Filter Controls -->
+    <div class="search-filter-card">
+      <div class="filter-group flex-2">
+        <label><i class="fa-solid fa-magnifying-glass"></i> Search</label>
+        <input type="text" id="searchInput" placeholder="Search event title or venue..." oninput="filterEvents()">
+      </div>
+      <div class="filter-group">
+        <label><i class="fa-solid fa-list"></i> Category</label>
+        <select id="categoryFilter" onchange="filterEvents()">
+          <option value="All">All Categories</option>
+          <option value="Academic">Academic Events</option>
+          <option value="Cultural">Cultural Events</option>
+          <option value="Sports">Sports Events</option>
+          <option value="Workshops">Workshops</option>
+          <option value="Parent-Teacher Meets">Parent-Teacher Meets</option>
+          <option value="Celebrations">Celebrations</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label><i class="fa-solid fa-signal"></i> Status</label>
+        <select id="statusFilter" onchange="filterEvents()">
+          <option value="All">All Statuses</option>
+          <option value="Open for Registration">Open for Registration</option>
+          <option value="Planning">Planning</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Completed">Completed</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-secondary" onclick="resetFilters()"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+      </div>
+    </div>
+
+    <!-- Event Cards Grid -->
+    <div class="events-grid" id="eventsGrid">
+      <!-- Injected dynamically via script.js -->
+    </div>
+  </section>
+
+  <!-- Event Categories Section -->
+  <section id="categories" class="section-container bg-light">
+    <div class="section-header text-center">
+      <span class="section-subtitle">Categorized Activities</span>
+      <h2 class="section-title">School Event Categories</h2>
+    </div>
+
+    <div class="categories-grid">
+      <div class="category-card" onclick="filterByCategory('Academic')">
+        <div class="cat-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+        <h3>🎓 Academic Events</h3>
+        <p>Science fairs, spelling bees, math olympiads, and exhibitions.</p>
+        <span class="cat-btn">Explore Category <i class="fa-solid fa-arrow-right"></i></span>
+      </div>
+
+      <div class="category-card" onclick="filterByCategory('Cultural')">
+        <div class="cat-icon"><i class="fa-solid fa-masks-theater"></i></div>
+        <h3>🎨 Cultural Events</h3>
+        <p>Annual school play, music concerts, dance, and art expos.</p>
+        <span class="cat-btn">Explore Category <i class="fa-solid fa-arrow-right"></i></span>
+      </div>
+
+      <div class="category-card" onclick="filterByCategory('Sports')">
+        <div class="cat-icon"><i class="fa-solid fa-trophy"></i></div>
+        <h3>🏆 Sports Events</h3>
+        <p>Inter-house athletics, soccer tournaments, and sports day.</p>
+        <span class="cat-btn">Explore Category <i class="fa-solid fa-arrow-right"></i></span>
+      </div>
+
+      <div class="category-card" onclick="filterByCategory('Workshops')">
+        <div class="cat-icon"><i class="fa-solid fa-laptop-code"></i></div>
+        <h3>📢 Workshops</h3>
+        <p>Robotics bootcamps, coding workshops, and safety sessions.</p>
+        <span class="cat-btn">Explore Category <i class="fa-solid fa-arrow-right"></i></span>
+      </div>
+
+      <div class="category-card" onclick="filterByCategory('Parent-Teacher Meets')">
+        <div class="cat-icon"><i class="fa-solid fa-handshake"></i></div>
+        <h3>🤝 Parent-Teacher Meets</h3>
+        <p>Progress report discussions, orientations, and open houses.</p>
+        <span class="cat-btn">Explore Category <i class="fa-solid fa-arrow-right"></i></span>
+      </div>
+
+      <div class="category-card" onclick="filterByCategory('Celebrations')">
+        <div class="cat-icon"><i class="fa-solid fa-champagne-glasses"></i></div>
+        <h3>🎉 Celebrations</h3>
+        <p>School foundation day, festival celebrations, and farewells.</p>
+        <span class="cat-btn">Explore Category <i class="fa-solid fa-arrow-right"></i></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Schedule & Agenda Section -->
+  <section id="schedule" class="section-container">
+    <div class="section-header text-center">
+      <span class="section-subtitle">Timelines & Planning</span>
+      <h2 class="section-title">School Event Schedule</h2>
+    </div>
+
+    <div class="timeline-wrapper">
+      <div class="timeline-item">
+        <div class="time-badge">09:00 AM - 10:30 AM</div>
+        <div class="timeline-content">
+          <span class="badge badge-orange">Academic</span>
+          <h3>Science Fair Project Demonstrations</h3>
+          <p><i class="fa-solid fa-user-tie"></i> Coordinator: Dr. A. P. Sharma | <i class="fa-solid fa-location-dot"></i> School Auditorium</p>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="time-badge">11:00 AM - 01:00 PM</div>
+        <div class="timeline-content">
+          <span class="badge badge-orange">Sports</span>
+          <h3>Inter-House 100m & 400m Track Finals</h3>
+          <p><i class="fa-solid fa-user-tie"></i> Lead: Coach Rajesh Kumar | <i class="fa-solid fa-location-dot"></i> School Ground</p>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="time-badge">02:00 PM - 04:00 PM</div>
+        <div class="timeline-content">
+          <span class="badge badge-orange">Parent-Teacher</span>
+          <h3>Quarterly Academic Progress Meet</h3>
+          <p><i class="fa-solid fa-user-tie"></i> Faculty: Class Teachers | <i class="fa-solid fa-location-dot"></i> Classrooms 1 to 10</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Admin & Management Dashboard -->
+  <section id="dashboard" class="section-container dashboard-wrapper">
+    <div class="section-header">
+      <span class="section-subtitle">School Administration</span>
+      <h2 class="section-title"><i class="fa-solid fa-sliders"></i> School Event Dashboard</h2>
+    </div>
+
+    <div class="dashboard-layout">
+      <!-- Sidebar Navigation -->
+      <aside class="dash-sidebar">
+        <button class="dash-tab-btn active" onclick="switchDashTab('dash-overview')"><i class="fa-solid fa-chart-pie"></i> Overview</button>
+        <button class="dash-tab-btn" onclick="switchDashTab('dash-registrations')"><i class="fa-solid fa-users"></i> Registrations & Check-in</button>
+        <button class="dash-tab-btn" onclick="switchDashTab('dash-resources')"><i class="fa-solid fa-boxes-packing"></i> Resource Management</button>
+        <button class="dash-tab-btn" onclick="switchDashTab('dash-volunteers')"><i class="fa-solid fa-hands-holding-child"></i> Volunteer Coordination</button>
+        <button class="dash-tab-btn" onclick="switchDashTab('dash-budget')"><i class="fa-solid fa-calculator"></i> Budget Tracking</button>
+        <button class="dash-tab-btn" onclick="switchDashTab('dash-reports')"><i class="fa-solid fa-file-export"></i> Reports</button>
+      </aside>
+
+      <!-- Dashboard Panels -->
+      <main class="dash-content">
+        
+        <!-- Overview -->
+        <div id="dash-overview" class="dash-panel active">
+          <h3>School Platform Summary</h3>
+          <div class="dash-stats-grid">
+            <div class="dash-stat-card">
+              <i class="fa-solid fa-calendar-days text-orange"></i>
+              <div>
+                <h4 id="statTotalEvents">0</h4>
+                <p>Total Events</p>
+              </div>
+            </div>
+            <div class="dash-stat-card">
+              <i class="fa-solid fa-user-check text-green"></i>
+              <div>
+                <h4 id="statTotalRegs">0</h4>
+                <p>Registrations</p>
+              </div>
+            </div>
+            <div class="dash-stat-card">
+              <i class="fa-solid fa-wallet text-blue"></i>
+              <div>
+                <h4 id="statTotalBudget">$0</h4>
+                <p>Allocated Budget</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Registrations Management -->
+        <div id="dash-registrations" class="dash-panel">
+          <div class="panel-header">
+            <h3>Participant Registrations</h3>
+            <button class="btn btn-sm btn-primary" onclick="openModal('addRegistrationModal')"><i class="fa-solid fa-user-plus"></i> Add Participant</button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Participant</th>
+                  <th>Event</th>
+                  <th>Participant Type</th>
+                  <th>Contact Email</th>
+                  <th>Check-In Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="registrationsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Resource Management -->
+        <div id="dash-resources" class="dash-panel">
+          <div class="panel-header">
+            <h3>Venue & Equipment Allocation</h3>
+            <button class="btn btn-sm btn-primary" onclick="openModal('addResourceModal')"><i class="fa-solid fa-plus"></i> Add Resource</button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Resource Name</th>
+                  <th>Assigned Event</th>
+                  <th>Quantity</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="resourcesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Volunteer Coordination -->
+        <div id="dash-volunteers" class="dash-panel">
+          <div class="panel-header">
+            <h3>Volunteer Task Assignments</h3>
+            <button class="btn btn-sm btn-primary" onclick="openModal('volunteerModal')"><i class="fa-solid fa-plus"></i> Register Volunteer</button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Volunteer Name</th>
+                  <th>Assigned Task</th>
+                  <th>Event</th>
+                  <th>Availability</th>
+                </tr>
+              </thead>
+              <tbody id="volunteersTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Budget Tracking -->
+        <div id="dash-budget" class="dash-panel">
+          <div class="panel-header">
+            <h3>School Budget & Expenses</h3>
+            <button class="btn btn-sm btn-primary" onclick="openModal('addBudgetItemModal')"><i class="fa-solid fa-plus"></i> Add Expense/Income</button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th>Event</th>
+                  <th>Category</th>
+                  <th>Type</th>
+                  <th>Amount ($)</th>
+                </tr>
+              </thead>
+              <tbody id="budgetTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Reports Export -->
+        <div id="dash-reports" class="dash-panel">
+          <h3>School Event Reports</h3>
+          <p>Export attendance records, budget allocation summaries, and event listings in CSV format.</p>
+          <div class="reports-actions flex-gap">
+            <button class="btn btn-outline" onclick="exportToCSV('events')"><i class="fa-solid fa-file-csv"></i> Export Events CSV</button>
+            <button class="btn btn-outline" onclick="exportToCSV('registrations')"><i class="fa-solid fa-file-csv"></i> Export Attendance CSV</button>
+            <button class="btn btn-outline" onclick="exportToCSV('budget')"><i class="fa-solid fa-file-csv"></i> Export Budget CSV</button>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </section>
+
+  <!-- Photo Gallery Section -->
+  <section id="gallery" class="section-container bg-light">
+    <div class="section-header text-center">
+      <span class="section-subtitle">School Memories</span>
+      <h2 class="section-title">Photo Gallery</h2>
+    </div>
+
+    <div class="gallery-grid">
+      <!-- Science Fair -->
+      <div class="gallery-card" onclick="openLightbox('https://images.unsplash.com/photo-1564069114553-742432597283?auto=format&fit=crop&w=1200&q=80', 'Annual Science & Tech Fair 2026')">
+        <img src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=1000&q=80(https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=1000&q=80)" alt="Science Fair">
+        <div class="gallery-overlay"><span><i class="fa-solid fa-expand"></i> Science Exhibition</span></div>
+      </div>
+
+      <!-- Cultural Day Stage -->
+      <div class="gallery-card" onclick="openLightbox('https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=1200&q=80', 'School Annual Drama & Dance Performance')">
+        <img src="https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=600&q=80" alt="Cultural Day">
+        <div class="gallery-overlay"><span><i class="fa-solid fa-expand"></i> Cultural Program</span></div>
+      </div>
+
+      <!-- Sports Track -->
+      <div class="gallery-card" onclick="openLightbox('https://images.unsplash.com/photo-1517649763962-0c623266ddc0?auto=format&fit=crop&w=1200&q=80', 'Inter-House Athletics Track Sprint')">
+        <img src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=1000&q=80](https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=1000&q=80)" alt="Sports Day">
+        <div class="gallery-overlay"><span><i class="fa-solid fa-expand"></i> Athletics Track</span></div>
+      </div>
+
+      <!-- Robotics & Coding Workshop -->
+      <div class="gallery-card" onclick="openLightbox('https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80', 'Robotics & STEM Workshop for Students')">
+        <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80" alt="Robotics Workshop">
+        <div class="gallery-overlay"><span><i class="fa-solid fa-expand"></i> Robotics Workshop</span></div>
+      </div>
+
+      <!-- Annual Award Ceremony -->
+      <div class="gallery-card" onclick="openLightbox('https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80', 'Annual Prize Distribution & Graduation')">
+        <img src="https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=600&q=80" alt="Prize Ceremony">
+        <div class="gallery-overlay"><span><i class="fa-solid fa-expand"></i> Prize Ceremony</span></div>
+      </div>
+
+      <!-- Parent-Teacher Orientation -->
+      <div class="gallery-card" onclick="openLightbox('https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1200&q=80', 'Parent-Teacher Orientation & Progress Meeting')">
+        <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=600&q=80" alt="Parent Meet">
+        <div class="gallery-overlay"><span><i class="fa-solid fa-expand"></i> Parent Orientation</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Volunteer Section -->
+  <section class="volunteer-cta">
+    <div class="section-container text-center">
+      <h2>Be Part of Something Amazing</h2>
+      <p>Become a school event volunteer to assist teachers, manage student queues, and help organize campus activities.</p>
+      <button onclick="openModal('volunteerModal')" class="btn btn-primary btn-lg"><i class="fa-solid fa-hand-holding-heart"></i> Join as Volunteer</button>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="section-container">
+    <div class="about-grid">
+      <div class="about-text">
+        <span class="section-subtitle">About EventSchool</span>
+        <h2 class="section-title">Organizing School Events with Ease</h2>
+        <p>EventSchool provides school administrators, teachers, and student volunteers with an easy-to-use system to plan schedules, manage registrations, track check-ins, and monitor event budgets.</p>
+        <ul class="about-list">
+          <li><i class="fa-solid fa-circle-check text-orange"></i> Full Event Creation & Listing</li>
+          <li><i class="fa-solid fa-circle-check text-orange"></i> Student, Teacher & Parent Registration Types</li>
+          <li><i class="fa-solid fa-circle-check text-orange"></i> Live Attendance Tracking & Budget Management</li>
+        </ul>
+      </div>
+      <div class="about-img">
+        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80" alt="School Management">
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="section-container bg-light">
+    <div class="section-header text-center">
+      <span class="section-subtitle">Get In Touch</span>
+      <h2 class="section-title">Contact School Event Committee</h2>
+    </div>
+
+    <form class="contact-form" onsubmit="handleContactSubmit(event)">
+      <div class="form-row">
+        <div class="form-group flex-1">
+          <label>Full Name</label>
+          <input type="text" required placeholder="Rahul Sharma">
+        </div>
+        <div class="form-group flex-1">
+          <label>Email Address</label>
+          <input type="email" required placeholder="rahul@school.com">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Subject</label>
+        <input type="text" required placeholder="Inquiry about Science Fair">
+      </div>
+      <div class="form-group">
+        <label>Message</label>
+        <textarea rows="4" required placeholder="Write your message here..."></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i> Send Message</button>
+    </form>
+  </section>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="footer-container">
+      <div class="footer-col">
+        <h3><i class="fa-solid fa-graduation-cap"></i> EventSchool</h3>
+        <p>A unified frontend platform for managing all school events, competitions, schedules, and volunteer activities.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#events">School Events</a></li>
+          <li><a href="#schedule">Schedule</a></li>
+          <li><a href="#dashboard">Admin Panel</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Categories</h4>
+        <ul>
+          <li><a href="#events">Academic Events</a></li>
+          <li><a href="#events">Cultural Events</a></li>
+          <li><a href="#events">Sports Day</a></li>
+          <li><a href="#events">Parent-Teacher Meets</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>School Office</h4>
+        <p><i class="fa-solid fa-envelope"></i> admin@eventschool.edu</p>
+        <p><i class="fa-solid fa-phone"></i> +91 98765 43210</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 EventSchool Management System. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- MODALS -->
+
+  <!-- Modal 1: Create Event -->
+  <div id="createEventModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Create New Event</h3>
+        <button class="close-btn" onclick="closeModal('createEventModal')">&times;</button>
+      </div>
+      <form onsubmit="handleCreateEvent(event)">
+        <div class="form-group">
+          <label>Event Title</label>
+          <input type="text" id="evtTitle" required placeholder="e.g. Annual Art & Craft Expo">
+        </div>
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label>Category</label>
+            <select id="evtCategory">
+              <option value="Academic">Academic</option>
+              <option value="Cultural">Cultural</option>
+              <option value="Sports">Sports</option>
+              <option value="Workshops">Workshops</option>
+              <option value="Parent-Teacher Meets">Parent-Teacher Meets</option>
+              <option value="Celebrations">Celebrations</option>
+            </select>
+          </div>
+          <div class="form-group flex-1">
+            <label>Status</label>
+            <select id="evtStatus">
+              <option value="Open for Registration">Open for Registration</option>
+              <option value="Planning">Planning</option>
+              <option value="In Progress">In Progress</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label>Date</label>
+            <input type="date" id="evtDate" required>
+          </div>
+          <div class="form-group flex-1">
+            <label>Time</label>
+            <input type="text" id="evtTime" placeholder="9:00 AM - 4:00 PM" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Venue</label>
+          <input type="text" id="evtVenue" placeholder="School Auditorium / School Ground" required>
+        </div>
+        <div class="form-group">
+          <label>Max Participants</label>
+          <input type="number" id="evtMax" value="200" required>
+        </div>
+        <div class="form-group">
+          <label>Image URL</label>
+          <input type="text" id="evtImage" placeholder="https://images.unsplash.com/..." required>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="evtDesc" rows="3" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Create Event</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: Event Details -->
+  <div id="eventDetailModal" class="modal-overlay">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <h3 id="detTitle">Event Title</h3>
+        <button class="close-btn" onclick="closeModal('eventDetailModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <img id="detImage" src="" alt="Event Detail" class="modal-img">
+        <div class="modal-info-grid">
+          <p><strong>Category:</strong> <span id="detCategory"></span></p>
+          <p><strong>Status:</strong> <span id="detStatus"></span></p>
+          <p><strong>Date:</strong> <span id="detDate"></span></p>
+          <p><strong>Time:</strong> <span id="detTime"></span></p>
+          <p><strong>Venue:</strong> <span id="detVenue"></span></p>
+          <p><strong>Max Participants:</strong> <span id="detCapacity"></span></p>
+        </div>
+        <p class="modal-desc" id="detDesc"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: Participant Registration -->
+  <div id="registerModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Register for Event</h3>
+        <button class="close-btn" onclick="closeModal('registerModal')">&times;</button>
+      </div>
+      <form onsubmit="handleRegistrationSubmit(event)">
+        <input type="hidden" id="regEventId">
+        <div class="form-group">
+          <label>Selected Event</label>
+          <input type="text" id="regEventTitle" readonly class="input-readonly">
+        </div>
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="regName" required placeholder="Rahul Sharma">
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="regEmail" required placeholder="rahul@email.com">
+        </div>
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label>Participant Type</label>
+            <select id="regType">
+              <option value="Student">🧑‍🎓 Student</option>
+              <option value="Teacher">👩‍🏫 Teacher</option>
+              <option value="Parent">👨‍👩‍👧 Parents</option>
+              <option value="Guest Speaker">🎤 Guest Speaker</option>
+              <option value="Volunteer">🤝 Volunteer</option>
+            </select>
+          </div>
+          <div class="form-group flex-1">
+            <label>Phone Number</label>
+            <input type="tel" id="regPhone" required placeholder="+91 9876543210">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Confirm Registration</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 4: Volunteer Registration -->
+  <div id="volunteerModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Register as School Volunteer</h3>
+        <button class="close-btn" onclick="closeModal('volunteerModal')">&times;</button>
+      </div>
+      <form onsubmit="handleVolunteerSubmit(event)">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="volName" required placeholder="Anita Roy">
+        </div>
+        <div class="form-group">
+          <label>Role Task</label>
+          <select id="volRole">
+            <option value="Stage Coordinator">Stage Coordinator</option>
+            <option value="Registration Desk">Registration Desk</option>
+            <option value="Safety & Discipline">Safety & Discipline</option>
+            <option value="Hospitality">Hospitality</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Assigned Event</label>
+          <select id="volEventSelect"></select>
+        </div>
+        <div class="form-group">
+          <label>Availability</label>
+          <input type="text" id="volAvailability" placeholder="Morning Shift / Full Day" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Submit Application</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 5: Add Resource -->
+  <div id="addResourceModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Add Resource / Equipment</h3>
+        <button class="close-btn" onclick="closeModal('addResourceModal')">&times;</button>
+      </div>
+      <form onsubmit="handleAddResourceSubmit(event)">
+        <div class="form-group">
+          <label>Resource Name</label>
+          <input type="text" id="resName" required placeholder="Projector & Display Screen">
+        </div>
+        <div class="form-group">
+          <label>Assigned Event</label>
+          <select id="resEventSelect"></select>
+        </div>
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label>Quantity</label>
+            <input type="number" id="resQty" required min="1" value="1">
+          </div>
+          <div class="form-group flex-1">
+            <label>Status</label>
+            <select id="resStatus">
+              <option value="Allocated">Allocated</option>
+              <option value="Pending Approval">Pending Approval</option>
+              <option value="Returned">Returned</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Allocate Resource</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 6: Add Budget Item -->
+  <div id="addBudgetItemModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Add Budget Item</h3>
+        <button class="close-btn" onclick="closeModal('addBudgetItemModal')">&times;</button>
+      </div>
+      <form onsubmit="handleAddBudgetSubmit(event)">
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" id="budItem" required placeholder="Science Fair Trophy & Medals">
+        </div>
+        <div class="form-group">
+          <label>Assigned Event</label>
+          <select id="budEventSelect"></select>
+        </div>
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label>Type</label>
+            <select id="budType">
+              <option value="Expense">Expense</option>
+              <option value="Income / Grant">Income / Grant</option>
+            </select>
+          </div>
+          <div class="form-group flex-1">
+            <label>Amount ($)</label>
+            <input type="number" id="budAmount" required min="1" placeholder="300">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Record Budget Item</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Lightbox Modal -->
+  <div id="lightboxModal" class="modal-overlay" onclick="closeModal('lightboxModal')">
+    <div class="lightbox-content">
+      <img id="lightboxImg" src="" alt="Enlarged Photo">
+      <p id="lightboxCaption" class="lightbox-caption"></p>
+    </div>
+  </div>
+
+  <!-- Toast Notification System -->
+  <div id="toast" class="toast-notification">Notification Message</div>
+
+  <script src="script.js"></script>
+</body>
+</html>
