@@ -1,500 +1,318 @@
-// ==========================================
-// EventSchool Management Platform - JavaScript
-// Strictly tailored for school events with matching images
-// ==========================================
+// Initial LocalStorage Data Seed
+if (!localStorage.getItem('es_users')) {
+  localStorage.setItem('es_users', JSON.stringify([
+    { id: 1, name: "Admin User", email: "admin@eventschool.edu", pass: "AdminPass123!", role: "admin" }
+  ]));
+}
+if (!localStorage.getItem('es_events')) {
+  localStorage.setItem('es_events', JSON.stringify([
+    { id: 101, title: "Annual Science Exhibition", category: "Academic", status: "Open for Registration", date: "2026-11-15", time: "10:00 AM", venue: "Main Auditorium", limit: 50, registered: 2, head: "Prof. Sharma", img: "https://images.unsplash.com/photo-1564069114553-74243c4a6601?w=500", desc: "Annual showcase of student science projects." },
+    { id: 102, title: "Inter-School Football Tournament", category: "Sports", status: "Open for Registration", date: "2026-11-20", time: "09:00 AM", venue: "Sports Ground", limit: 100, registered: 5, head: "Coach Rajiv", img: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=500", desc: "Football tournament for high school teams." }
+  ]));
+}
+if (!localStorage.getItem('es_regs')) localStorage.setItem('es_regs', JSON.stringify([]));
 
-let events = [
-  {
-    id: 1,
-    title: "Annual Science Fair 2026",
-    description: "Students showcase innovative science projects and experiments.",
-    category: "Academic",
-    date: "2026-11-15",
-    time: "9:00 AM - 4:00 PM",
-    venue: "School Auditorium",
-    status: "Open for Registration",
-    max_participants: 200,
-    image: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=800&q=80"
-  },
-  {
-    id: 2,
-    title: "Annual Sports Day",
-    description: "Inter-house track and field athletics competitions.",
-    category: "Sports",
-    date: "2026-12-10",
-    time: "8:00 AM - 5:00 PM",
-    venue: "School Ground",
-    status: "Planning",
-    max_participants: 500,
-    image: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=800&q=80"
-  },
- {
-    id: 3,
-    title: "Annual Cultural Day",
-    description: "Student music performances, dance, and theatrical plays.",
-    category: "Cultural",
-    date: "2026-12-20",
-    time: "10:00 AM - 6:00 PM",
-    venue: "School Open Air Stage",
-    status: "Open for Registration",
-    max_participants: 600,
-    image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80"
-  },
-  {
-    id: 4,
-    title: "Robotics & Coding Workshop",
-    description: "Hands-on STEM and coding workshop for students.",
-    category: "Workshops",
-    date: "2026-11-25",
-    time: "10:00 AM - 2:00 PM",
-    venue: "Computer Lab 1",
-    status: "In Progress",
-    max_participants: 60,
-    image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80"
-  },
-  {
-    id: 5,
-    title: "Parent-Teacher Progress Meet",
-    description: "Discussion on quarterly student academic performance.",
-    category: "Parent-Teacher Meets",
-    date: "2026-11-05",
-    time: "1:00 PM - 5:00 PM",
-    venue: "School Classrooms",
-    status: "Open for Registration",
-    max_participants: 300,
-    image: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80"
-  }
-];
+let currentUser = JSON.parse(localStorage.getItem('es_current_user')) || null;
+let currentTab = 'overview';
 
-// Sample registrations stored in JavaScript
-let registrations = [
-  {
-    id: 1,
-    event_id: 1,
-    event_title: "Annual Science Fair 2026",
-    participant_name: "Rahul Sharma",
-    participant_type: "Student",
-    email: "rahul@email.com",
-    phone: "+91 9876543210",
-    registration_date: "2026-10-01",
-    check_in_status: "Not Checked In"
-  },
-  {
-    id: 2,
-    event_id: 1,
-    event_title: "Annual Science Fair 2026",
-    participant_name: "Mrs. Sunita Sharma",
-    participant_type: "Parent",
-    email: "sunita@email.com",
-    phone: "+91 9876543211",
-    registration_date: "2026-10-02",
-    check_in_status: "Checked In"
-  }
-];
+// Helper Functions
+function getEvents() { return JSON.parse(localStorage.getItem('es_events')) || []; }
+function getUsers() { return JSON.parse(localStorage.getItem('es_users')) || []; }
+function getRegs() { return JSON.parse(localStorage.getItem('es_regs')) || []; }
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-// Sample Resources, Volunteers, and Budget data
-let resources = [
-  { id: 1, event_id: 1, resource_name: "Projector & Sound Mic", quantity: 2, status: "Allocated" },
-  { id: 2, event_id: 2, resource_name: "Track Hurdles & Flags", quantity: 20, status: "Pending Approval" }
-];
-
-let volunteers = [
-  { id: 1, name: "Priya Roy", role: "Registration Desk", event: "Annual Science Fair 2026", availability: "Full Day" },
-  { id: 2, name: "Amit Patel", role: "Stage Coordinator", event: "Annual Cultural Day", availability: "Morning Shift" }
-];
-
-let budget = [
-  { id: 1, event_id: 1, category: "Trophies", description: "Science Fair Medals", amount: 250, type: "Expense" },
-  { id: 2, event_id: 1, category: "Sponsorship", description: "PTA Science Grant", amount: 600, type: "Income / Grant" }
-];
-
-let currentRole = 'Admin';
-
-// Initialize on DOM Load
-document.addEventListener('DOMContentLoaded', () => {
-  renderEvents(events);
-  renderDashboard();
-  populateEventDropdowns();
+// Init UI
+document.addEventListener("DOMContentLoaded", () => {
+  updateAuthUI();
+  renderEvents();
+  renderGallery();
 });
 
-// Role Selector
-function changeUserRole(role) {
-  currentRole = role;
-  showToast(`Role switched to: ${role}`);
+function updateAuthUI() {
+  const authDiv = document.getElementById('topbarAuth');
+  const myRegsSec = document.getElementById('myRegsSection');
+  const dashSec = document.getElementById('dashboardSection');
+
+  if (currentUser) {
+    authDiv.innerHTML = `<span>Welcome, <strong>${currentUser.name}</strong> (${currentUser.role})</span> | <a onclick="logout()">Log out</a>`;
+    if (currentUser.role === 'student') {
+      myRegsSec.style.display = 'block';
+      dashSec.style.display = 'none';
+      renderMyRegs();
+    } else {
+      myRegsSec.style.display = 'none';
+      dashSec.style.display = 'block';
+      document.getElementById('dashTitle').innerText = currentUser.role === 'admin' ? 'Administrator Dashboard' : 'Event Head Dashboard';
+      switchTab(currentTab);
+    }
+  } else {
+    authDiv.innerHTML = `<a onclick="openModal('loginModal')">Log in</a> | <a onclick="openModal('signupModal')">Sign up</a>`;
+    myRegsSec.style.display = 'none';
+    dashSec.style.display = 'none';
+  }
 }
 
-// Mobile Navbar Toggle
-function toggleMobileMenu() {
-  document.getElementById('navMenu').classList.toggle('show');
+// Auth Actions
+function handleLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('lEmail').value;
+  const pass = document.getElementById('lPass').value;
+  const users = getUsers();
+  const user = users.find(u => u.email === email && u.pass === pass);
+
+  if (user) {
+    currentUser = user;
+    localStorage.setItem('es_current_user', JSON.stringify(user));
+    closeModal('loginModal');
+    updateAuthUI();
+  } else {
+    alert("Invalid email or password!");
+  }
 }
 
-// Render Event Cards Grid
-function renderEvents(items) {
-  const grid = document.getElementById('eventsGrid');
-  if (!grid) return;
-  grid.innerHTML = '';
+function handleSignup(e) {
+  e.preventDefault();
+  const name = document.getElementById('sName').value;
+  const email = document.getElementById('sEmail').value;
+  const pass = document.getElementById('sPass').value;
+  const users = getUsers();
 
-  if (items.length === 0) {
-    grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 40px; color: var(--text-muted);">
-      <i class="fa-solid fa-folder-open" style="font-size: 2.5rem; margin-bottom: 10px;"></i>
-      <p>No matching school events found.</p>
-    </div>`;
+  if (users.find(u => u.email === email)) {
+    alert("User already exists!");
     return;
   }
 
-  items.forEach(item => {
+  const newUser = { id: Date.now(), name, email, pass, role: "student" };
+  users.push(newUser);
+  localStorage.setItem('es_users', JSON.stringify(users));
+  currentUser = newUser;
+  localStorage.setItem('es_current_user', JSON.stringify(newUser));
+  closeModal('signupModal');
+  updateAuthUI();
+}
+
+function logout() {
+  currentUser = null;
+  localStorage.removeItem('es_current_user');
+  updateAuthUI();
+}
+
+// Events Rendering
+function renderEvents() {
+  const events = getEvents();
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const cat = document.getElementById('categoryFilter').value;
+  const stat = document.getElementById('statusFilter').value;
+
+  const grid = document.getElementById('eventsGrid');
+  const timeline = document.getElementById('timelineList');
+  grid.innerHTML = '';
+  timeline.innerHTML = '';
+
+  const filtered = events.filter(e => {
+    return (cat === 'All' || e.category === cat) &&
+           (stat === 'All' || e.status === stat) &&
+           (e.title.toLowerCase().includes(search) || e.desc.toLowerCase().includes(search));
+  });
+
+  filtered.forEach(ev => {
+    const seatsLeft = ev.limit - ev.registered;
     const card = document.createElement('div');
     card.className = 'event-card';
     card.innerHTML = `
-      <div class="card-image-wrap">
-        <img src="${item.image}" alt="${item.title}">
-        <span class="status-tag">${item.status}</span>
+      <div class="card-img-container">
+        <img src="${ev.img}" class="card-img" alt="Event">
+        <span class="card-category">${ev.category}</span>
       </div>
-      <div class="card-content">
-        <span class="card-category">${item.category}</span>
-        <h3 class="card-title">${item.title}</h3>
-        <div class="card-details">
-          <span><i class="fa-solid fa-calendar-day"></i> ${item.date} (${item.time})</span>
-          <span><i class="fa-solid fa-location-dot"></i> ${item.venue}</span>
+      <div class="card-body">
+        <h3 class="card-title">${ev.title}</h3>
+        <div class="card-meta">
+          <p>📅 ${ev.date} @ ${ev.venue}</p>
+          <p>👤 Head: ${ev.head}</p>
         </div>
-        <div class="card-actions">
-          <button class="btn btn-outline btn-sm flex-1" onclick="viewEventDetails(${item.id})">Details</button>
-          <button class="btn btn-primary btn-sm flex-1" onclick="openRegisterModal(${item.id})">Register</button>
+        <div class="seat-progress">
+          <div class="seat-label"><span>${seatsLeft} seats left</span><span>${Math.round((ev.registered/ev.limit)*100)}%</span></div>
+          <div class="progress-bar"><div class="progress-fill" style="width: ${(ev.registered/ev.limit)*100}%"></div></div>
         </div>
+        <button class="btn btn-primary btn-sm" style="margin-top: 10px;" ${seatsLeft <= 0 ? 'disabled' : ''} onclick="registerEvent(${ev.id})">
+          ${seatsLeft <= 0 ? 'Full' : 'Register Now'}
+        </button>
       </div>
     `;
     grid.appendChild(card);
+
+    const tItem = document.createElement('div');
+    tItem.className = 'timeline-item';
+    tItem.innerHTML = `<h4>${ev.title}</h4><p>${ev.date} @ ${ev.venue}</p>`;
+    timeline.appendChild(tItem);
   });
 }
 
-// Real-time Event Filter
-function filterEvents() {
-  const search = document.getElementById('searchInput').value.toLowerCase();
-  const category = document.getElementById('categoryFilter').value;
-  const status = document.getElementById('statusFilter').value;
+function registerEvent(eventId) {
+  if (!currentUser) {
+    alert("Please login first to register!");
+    openModal('loginModal');
+    return;
+  }
+  const regs = getRegs();
+  if (regs.find(r => r.eventId === eventId && r.userEmail === currentUser.email)) {
+    alert("You are already registered for this event!");
+    return;
+  }
 
-  const filtered = events.filter(e => {
-    const matchesSearch = e.title.toLowerCase().includes(search) || e.venue.toLowerCase().includes(search);
-    const matchesCat = (category === 'All') || (e.category === category);
-    const matchesStatus = (status === 'All') || (e.status === status);
-    return matchesSearch && matchesCat && matchesStatus;
-  });
+  const events = getEvents();
+  const ev = events.find(e => e.id === eventId);
+  ev.registered += 1;
+  localStorage.setItem('es_events', JSON.stringify(events));
 
-  renderEvents(filtered);
+  const newReg = {
+    id: Date.now(),
+    eventId: eventId,
+    eventTitle: ev.title,
+    userEmail: currentUser.email,
+    userName: currentUser.name,
+    status: "Pending",
+    ticketCode: "TICK-" + Math.floor(100000 + Math.random() * 900000)
+  };
+  regs.push(newReg);
+  localStorage.setItem('es_regs', JSON.stringify(regs));
+
+  alert("Registration submitted! Status is Pending.");
+  renderEvents();
+  if (currentUser.role === 'student') renderMyRegs();
 }
 
-function filterByCategory(cat) {
-  document.getElementById('categoryFilter').value = cat;
-  filterEvents();
-  document.getElementById('events').scrollIntoView({ behavior: 'smooth' });
+function renderMyRegs() {
+  const regs = getRegs().filter(r => r.userEmail === currentUser.email);
+  const tbody = document.getElementById('myRegsBody');
+  tbody.innerHTML = regs.map(r => `
+    <tr>
+      <td>${r.eventTitle}</td>
+      <td><span class="badge badge-${r.status.toLowerCase()}">${r.status}</span></td>
+      <td><code>${r.ticketCode}</code></td>
+      <td>
+        ${r.status === 'Approved' ? `<button class="btn btn-outline btn-sm" onclick="showTicket('${r.ticketCode}')">Ticket</button>` : ''}
+      </td>
+    </tr>
+  `).join('');
+}
+
+function showTicket(code) {
+  document.getElementById('tCode').innerText = code;
+  document.getElementById('qrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${code}`;
+  openModal('ticketModal');
+}
+
+// Dashboard Actions
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.sidebar-tab').forEach(b => b.classList.remove('active'));
+  const content = document.getElementById('dashContent');
+
+  if (tab === 'overview') {
+    const events = getEvents();
+    const regs = getRegs();
+    content.innerHTML = `
+      <h3>Overview</h3>
+      <div class="stats-grid" style="margin-top:15px;">
+        <div class="stat-card"><h4>Total Events</h4><div style="font-size:1.5rem; font-weight:bold;">${events.length}</div></div>
+        <div class="stat-card"><h4>Registrations</h4><div style="font-size:1.5rem; font-weight:bold;">${regs.length}</div></div>
+      </div>
+    `;
+  } else if (tab === 'events') {
+    content.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h3>Manage Events</h3>
+        <button class="btn btn-primary btn-sm" onclick="openModal('createEventModal')">+ Create Event</button>
+      </div>
+      <div class="table-responsive">
+        <table>
+          <thead><tr><th>Title</th><th>Category</th><th>Date</th><th>Seats</th></tr></thead>
+          <tbody>
+            ${getEvents().map(e => `<tr><td>${e.title}</td><td>${e.category}</td><td>${e.date}</td><td>${e.registered}/${e.limit}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } else if (tab === 'participants') {
+    content.innerHTML = `
+      <h3>Participants Management</h3>
+      <div class="table-responsive" style="margin-top:15px;">
+        <table>
+          <thead><tr><th>User</th><th>Event</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody>
+            ${getRegs().map(r => `
+              <tr>
+                <td>${r.userName}</td>
+                <td>${r.eventTitle}</td>
+                <td><span class="badge badge-${r.status.toLowerCase()}">${r.status}</span></td>
+                <td>
+                  <button class="btn btn-primary btn-sm" onclick="updateStatus(${r.id}, 'Approved')">Approve</button>
+                  <button class="btn btn-secondary btn-sm" onclick="updateStatus(${r.id}, 'Rejected')">Reject</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+}
+
+function handleCreateEvent(e) {
+  e.preventDefault();
+  const events = getEvents();
+  const newEv = {
+    id: Date.now(),
+    title: document.getElementById('evTitle').value,
+    category: document.getElementById('evCat').value,
+    status: "Open for Registration",
+    date: document.getElementById('evDate').value,
+    venue: document.getElementById('evVenue').value,
+    limit: parseInt(document.getElementById('evLimit').value),
+    registered: 0,
+    head: currentUser.name,
+    img: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=500",
+    desc: document.getElementById('evDesc').value
+  };
+  events.push(newEv);
+  localStorage.setItem('es_events', JSON.stringify(events));
+  closeModal('createEventModal');
+  renderEvents();
+  switchTab('events');
+}
+
+function updateStatus(regId, newStatus) {
+  const regs = getRegs();
+  const r = regs.find(item => item.id === regId);
+  if (r) {
+    r.status = newStatus;
+    localStorage.setItem('es_regs', JSON.stringify(regs));
+    switchTab('participants');
+  }
 }
 
 function resetFilters() {
   document.getElementById('searchInput').value = '';
   document.getElementById('categoryFilter').value = 'All';
   document.getElementById('statusFilter').value = 'All';
-  renderEvents(events);
+  renderEvents();
 }
 
-// Modal Toggle Helpers
-function openModal(id) {
-  const modal = document.getElementById(id);
-  if (modal) modal.style.display = 'flex';
+function filterCat(cat) {
+  document.getElementById('categoryFilter').value = cat;
+  renderEvents();
+  window.location.href = '#events';
 }
 
-function closeModal(id) {
-  const modal = document.getElementById(id);
-  if (modal) modal.style.display = 'none';
-}
-
-// View Details Modal
-function viewEventDetails(id) {
-  const evt = events.find(e => e.id === id);
-  if (!evt) return;
-
-  document.getElementById('detTitle').innerText = evt.title;
-  document.getElementById('detImage').src = evt.image;
-  document.getElementById('detCategory').innerText = evt.category;
-  document.getElementById('detStatus').innerText = evt.status;
-  document.getElementById('detDate').innerText = evt.date;
-  document.getElementById('detTime').innerText = evt.time;
-  document.getElementById('detVenue').innerText = evt.venue;
-  document.getElementById('detCapacity').innerText = evt.max_participants;
-  document.getElementById('detDesc').innerText = evt.description;
-
-  openModal('eventDetailModal');
-}
-
-// Open Registration Modal
-function openRegisterModal(id) {
-  const evt = events.find(e => e.id === id);
-  if (!evt) return;
-
-  document.getElementById('regEventId').value = evt.id;
-  document.getElementById('regEventTitle').value = evt.title;
-  openModal('registerModal');
-}
-
-// Create New Event Handler
-function handleCreateEvent(e) {
-  e.preventDefault();
-  const newEvt = {
-    id: events.length + 1,
-    title: document.getElementById('evtTitle').value,
-    category: document.getElementById('evtCategory').value,
-    status: document.getElementById('evtStatus').value,
-    date: document.getElementById('evtDate').value,
-    time: document.getElementById('evtTime').value,
-    venue: document.getElementById('evtVenue').value,
-    max_participants: parseInt(document.getElementById('evtMax').value),
-    image: document.getElementById('evtImage').value,
-    description: document.getElementById('evtDesc').value
-  };
-
-  events.push(newEvt);
-  renderEvents(events);
-  populateEventDropdowns();
-  renderDashboard();
-  closeModal('createEventModal');
-  showToast("School Event Created Successfully!");
-  e.target.reset();
-}
-
-// Participant Registration Handler
-function handleRegistrationSubmit(e) {
-  e.preventDefault();
-  const newReg = {
-    id: registrations.length + 1,
-    event_id: parseInt(document.getElementById('regEventId').value),
-    event_title: document.getElementById('regEventTitle').value,
-    participant_name: document.getElementById('regName').value,
-    email: document.getElementById('regEmail').value,
-    participant_type: document.getElementById('regType').value,
-    phone: document.getElementById('regPhone').value,
-    registration_date: new Date().toISOString().split('T')[0],
-    check_in_status: "Not Checked In"
-  };
-
-  registrations.push(newReg);
-  renderDashboard();
-  closeModal('registerModal');
-  showToast("Registration submitted successfully!");
-  e.target.reset();
-}
-
-// Volunteer Handler
-function handleVolunteerSubmit(e) {
-  e.preventDefault();
-  const selectElem = document.getElementById('volEventSelect');
-  const eventName = selectElem.options[selectElem.selectedIndex] ? selectElem.options[selectElem.selectedIndex].text : "General";
-
-  const newVol = {
-    id: volunteers.length + 1,
-    name: document.getElementById('volName').value,
-    role: document.getElementById('volRole').value,
-    event: eventName,
-    availability: document.getElementById('volAvailability').value
-  };
-
-  volunteers.push(newVol);
-  renderDashboard();
-  closeModal('volunteerModal');
-  showToast("Volunteer registered successfully!");
-  e.target.reset();
-}
-
-// Resource Handler
-function handleAddResourceSubmit(e) {
-  e.preventDefault();
-  const newRes = {
-    id: resources.length + 1,
-    resource_name: document.getElementById('resName').value,
-    event_id: parseInt(document.getElementById('resEventSelect').value),
-    quantity: parseInt(document.getElementById('resQty').value),
-    status: document.getElementById('resStatus').value
-  };
-
-  resources.push(newRes);
-  renderDashboard();
-  closeModal('addResourceModal');
-  showToast("Resource allocated!");
-  e.target.reset();
-}
-
-// Budget Handler
-function handleAddBudgetSubmit(e) {
-  e.preventDefault();
-  const newBud = {
-    id: budget.length + 1,
-    description: document.getElementById('budItem').value,
-    event_id: parseInt(document.getElementById('budEventSelect').value),
-    type: document.getElementById('budType').value,
-    amount: parseFloat(document.getElementById('budAmount').value),
-    category: "General Expense"
-  };
-
-  budget.push(newBud);
-  renderDashboard();
-  closeModal('addBudgetItemModal');
-  showToast("Budget entry recorded!");
-  e.target.reset();
-}
-
-function handleContactSubmit(e) {
-  e.preventDefault();
-  showToast("Thank you! Message sent to School Committee.");
-  e.target.reset();
-}
-
-// Lightbox Viewer
-function openLightbox(url, caption) {
-  document.getElementById('lightboxImg').src = url;
-  document.getElementById('lightboxCaption').innerText = caption;
-  openModal('lightboxModal');
-}
-
-// Switch Dashboard Tab
-function switchDashTab(panelId) {
-  document.querySelectorAll('.dash-tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.dash-panel').forEach(p => p.classList.remove('active'));
-
-  if (event && event.currentTarget) {
-    event.currentTarget.classList.add('active');
-  }
-  const targetPanel = document.getElementById(panelId);
-  if (targetPanel) targetPanel.classList.add('active');
-}
-
-// Render Dashboard Data Tables & Stats
-function renderDashboard() {
-  const statEvents = document.getElementById('statTotalEvents');
-  const statRegs = document.getElementById('statTotalRegs');
-  const statBudget = document.getElementById('statTotalBudget');
-
-  if (statEvents) statEvents.innerText = events.length;
-  if (statRegs) statRegs.innerText = registrations.length;
-  
-  const totalExp = budget.reduce((acc, curr) => curr.type === 'Expense' ? acc + curr.amount : acc, 0);
-  if (statBudget) statBudget.innerText = `$${totalExp}`;
-
-  // Registrations Table
-  const regBody = document.getElementById('registrationsTableBody');
-  if (regBody) {
-    regBody.innerHTML = registrations.map(r => `
-      <tr>
-        <td><strong>${r.participant_name}</strong></td>
-        <td>${r.event_title}</td>
-        <td>${r.participant_type}</td>
-        <td>${r.email}</td>
-        <td><span class="badge ${r.check_in_status === 'Checked In' ? 'badge-accent' : 'badge-orange'}">${r.check_in_status}</span></td>
-        <td>
-          <button class="btn btn-sm btn-outline" onclick="toggleCheckIn(${r.id})">${r.check_in_status === 'Checked In' ? 'Undo' : 'Check In'}</button>
-        </td>
-      </tr>
-    `).join('');
-  }
-
-  // Resources Table
-  const resBody = document.getElementById('resourcesTableBody');
-  if (resBody) {
-    resBody.innerHTML = resources.map(r => {
-      const evt = events.find(e => e.id === r.event_id);
-      return `
-        <tr>
-          <td><strong>${r.resource_name}</strong></td>
-          <td>${evt ? evt.title : 'General'}</td>
-          <td>${r.quantity}</td>
-          <td><span class="badge badge-orange">${r.status}</span></td>
-        </tr>
-      `;
-    }).join('');
-  }
-
-  // Volunteers Table
-  const volBody = document.getElementById('volunteersTableBody');
-  if (volBody) {
-    volBody.innerHTML = volunteers.map(v => `
-      <tr>
-        <td><strong>${v.name}</strong></td>
-        <td>${v.role}</td>
-        <td>${v.event}</td>
-        <td>${v.availability}</td>
-      </tr>
-    `).join('');
-  }
-
-  // Budget Table
-  const budBody = document.getElementById('budgetTableBody');
-  if (budBody) {
-    budBody.innerHTML = budget.map(b => {
-      const evt = events.find(e => e.id === b.event_id);
-      return `
-        <tr>
-          <td><strong>${b.description}</strong></td>
-          <td>${evt ? evt.title : 'General'}</td>
-          <td>${b.category}</td>
-          <td><span class="badge ${b.type === 'Expense' ? 'badge-orange' : 'badge-accent'}">${b.type}</span></td>
-          <td>$${b.amount}</td>
-        </tr>
-      `;
-    }).join('');
-  }
-}
-
-// Toggle Check-In Status
-function toggleCheckIn(regId) {
-  const reg = registrations.find(r => r.id === regId);
-  if (reg) {
-    reg.check_in_status = (reg.check_in_status === 'Checked In') ? 'Not Checked In' : 'Checked In';
-    renderDashboard();
-    showToast(`Check-in updated for ${reg.participant_name}`);
-  }
-}
-
-// Fill Event Select Dropdowns
-function populateEventDropdowns() {
-  const selects = [
-    document.getElementById('volEventSelect'),
-    document.getElementById('resEventSelect'),
-    document.getElementById('budEventSelect')
+function renderGallery() {
+  const imgs = [
+    "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=400",
+    "https://images.unsplash.com/photo-1511578314322-379afb476865?w=400",
+    "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400"
   ];
-
-  const optionsHTML = events.map(e => `<option value="${e.id}">${e.title}</option>`).join('');
-  selects.forEach(select => {
-    if (select) select.innerHTML = optionsHTML;
-  });
-}
-
-// Export CSV Reports
-function exportToCSV(type) {
-  let data = [];
-  let filename = `${type}_report.csv`;
-
-  if (type === 'events') data = events;
-  else if (type === 'registrations') data = registrations;
-  else if (type === 'budget') data = budget;
-
-  if (data.length === 0) return showToast("No data to export.");
-
-  const keys = Object.keys(data[0]);
-  const csvContent = "data:text/csv;charset=utf-8," 
-    + [keys.join(","), ...data.map(row => keys.map(k => `"${row[k]}"`).join(","))].join("\n");
-
-  const encodedUri = encodeURI(csvContent);
-  const link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
-  link.setAttribute("download", filename);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  showToast(`Exported ${type} report successfully!`);
-}
-
-// Toast Helper Notification
-function showToast(msg) {
-  const toast = document.getElementById('toast');
-  if (!toast) return;
-  toast.innerText = msg;
-  toast.style.display = 'block';
-  setTimeout(() => { toast.style.display = 'none'; }, 3000);
+  document.getElementById('galleryGrid').innerHTML = imgs.map(src => `
+    <div class="gallery-item"><img src="${src}" alt="Gallery"></div>
+  `).join('');
 }
