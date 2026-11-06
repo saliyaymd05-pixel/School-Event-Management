@@ -1,7 +1,7 @@
-// Initial LocalStorage Data Seed
+// Initial LocalStorage Data Seed with exact default Admin credentials
 if (!localStorage.getItem('es_users')) {
   localStorage.setItem('es_users', JSON.stringify([
-    { id: 1, name: "Admin User", email: "admin@eventschool.edu", pass: "AdminPass123!", role: "admin" }
+    { id: 1, name: "System Admin", email: "admin@eventschool.edu", pass: "AdminPass123!", role: "admin" }
   ]));
 }
 if (!localStorage.getItem('es_events')) {
@@ -11,6 +11,12 @@ if (!localStorage.getItem('es_events')) {
   ]));
 }
 if (!localStorage.getItem('es_regs')) localStorage.setItem('es_regs', JSON.stringify([]));
+if (!localStorage.getItem('es_photos')) {
+  localStorage.setItem('es_photos', JSON.stringify([
+    "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=400",
+    "https://images.unsplash.com/photo-1511578314322-379afb476865?w=400"
+  ]));
+}
 
 let currentUser = JSON.parse(localStorage.getItem('es_current_user')) || null;
 let currentTab = 'overview';
@@ -19,6 +25,7 @@ let currentTab = 'overview';
 function getEvents() { return JSON.parse(localStorage.getItem('es_events')) || []; }
 function getUsers() { return JSON.parse(localStorage.getItem('es_users')) || []; }
 function getRegs() { return JSON.parse(localStorage.getItem('es_regs')) || []; }
+function getPhotos() { return JSON.parse(localStorage.getItem('es_photos')) || []; }
 function openModal(id) { document.getElementById(id).classList.add('active'); }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
@@ -40,10 +47,10 @@ function updateAuthUI() {
       myRegsSec.style.display = 'block';
       dashSec.style.display = 'none';
       renderMyRegs();
-    } else {
+    } else if (currentUser.role === 'admin') {
       myRegsSec.style.display = 'none';
       dashSec.style.display = 'block';
-      document.getElementById('dashTitle').innerText = currentUser.role === 'admin' ? 'Administrator Dashboard' : 'Event Head Dashboard';
+      document.getElementById('dashTitle').innerText = 'Administrator Dashboard';
       switchTab(currentTab);
     }
   } else {
@@ -56,30 +63,31 @@ function updateAuthUI() {
 // Auth Actions
 function handleLogin(e) {
   e.preventDefault();
-  const email = document.getElementById('lEmail').value;
+  const email = document.getElementById('lEmail').value.trim();
   const pass = document.getElementById('lPass').value;
   const users = getUsers();
-  const user = users.find(u => u.email === email && u.pass === pass);
+  const user = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.pass === pass);
 
   if (user) {
     currentUser = user;
     localStorage.setItem('es_current_user', JSON.stringify(user));
     closeModal('loginModal');
     updateAuthUI();
+    renderEvents();
   } else {
-    alert("Invalid email or password!");
+    alert("Invalid email or password! (Default Admin: admin@eventschool.edu / AdminPass123!)");
   }
 }
 
 function handleSignup(e) {
   e.preventDefault();
   const name = document.getElementById('sName').value;
-  const email = document.getElementById('sEmail').value;
+  const email = document.getElementById('sEmail').value.trim();
   const pass = document.getElementById('sPass').value;
   const users = getUsers();
 
-  if (users.find(u => u.email === email)) {
-    alert("User already exists!");
+  if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+    alert("User email already exists!");
     return;
   }
 
@@ -90,12 +98,14 @@ function handleSignup(e) {
   localStorage.setItem('es_current_user', JSON.stringify(newUser));
   closeModal('signupModal');
   updateAuthUI();
+  alert("Student account created and logged in successfully!");
 }
 
 function logout() {
   currentUser = null;
   localStorage.removeItem('es_current_user');
   updateAuthUI();
+  renderEvents();
 }
 
 // Events Rendering
@@ -151,10 +161,15 @@ function renderEvents() {
 
 function registerEvent(eventId) {
   if (!currentUser) {
-    alert("Please login first to register!");
+    alert("Please log in as a student first to register for events!");
     openModal('loginModal');
     return;
   }
+  if (currentUser.role !== 'student') {
+    alert("Admin accounts cannot register for events as participants.");
+    return;
+  }
+
   const regs = getRegs();
   if (regs.find(r => r.eventId === eventId && r.userEmail === currentUser.email)) {
     alert("You are already registered for this event!");
@@ -178,12 +193,13 @@ function registerEvent(eventId) {
   regs.push(newReg);
   localStorage.setItem('es_regs', JSON.stringify(regs));
 
-  alert("Registration submitted! Status is Pending.");
+  alert("Registration submitted successfully! Status is Pending.");
   renderEvents();
-  if (currentUser.role === 'student') renderMyRegs();
+  renderMyRegs();
 }
 
 function renderMyRegs() {
+  if (!currentUser || currentUser.role !== 'student') return;
   const regs = getRegs().filter(r => r.userEmail === currentUser.email);
   const tbody = document.getElementById('myRegsBody');
   tbody.innerHTML = regs.map(r => `
@@ -192,7 +208,7 @@ function renderMyRegs() {
       <td><span class="badge badge-${r.status.toLowerCase()}">${r.status}</span></td>
       <td><code>${r.ticketCode}</code></td>
       <td>
-        ${r.status === 'Approved' ? `<button class="btn btn-outline btn-sm" onclick="showTicket('${r.ticketCode}')">Ticket</button>` : ''}
+        ${r.status === 'Approved' ? `<button class="btn btn-outline btn-sm" onclick="showTicket('${r.ticketCode}')">Ticket</button>` : 'Awaiting Approval'}
       </td>
     </tr>
   `).join('');
@@ -204,7 +220,7 @@ function showTicket(code) {
   openModal('ticketModal');
 }
 
-// Dashboard Actions
+// Dashboard Actions (Admin Only)
 function switchTab(tab) {
   currentTab = tab;
   document.querySelectorAll('.sidebar-tab').forEach(b => b.classList.remove('active'));
@@ -214,33 +230,41 @@ function switchTab(tab) {
     const events = getEvents();
     const regs = getRegs();
     content.innerHTML = `
-      <h3>Overview</h3>
+      <h3>System Overview</h3>
       <div class="stats-grid" style="margin-top:15px;">
         <div class="stat-card"><h4>Total Events</h4><div style="font-size:1.5rem; font-weight:bold;">${events.length}</div></div>
-        <div class="stat-card"><h4>Registrations</h4><div style="font-size:1.5rem; font-weight:bold;">${regs.length}</div></div>
+        <div class="stat-card"><h4>Total Registrations</h4><div style="font-size:1.5rem; font-weight:bold;">${regs.length}</div></div>
       </div>
     `;
   } else if (tab === 'events') {
     content.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-        <h3>Manage Events</h3>
+        <h3>Manage Events (Admin Control)</h3>
         <button class="btn btn-primary btn-sm" onclick="openModal('createEventModal')">+ Create Event</button>
       </div>
       <div class="table-responsive">
         <table>
-          <thead><tr><th>Title</th><th>Category</th><th>Date</th><th>Seats</th></tr></thead>
+          <thead><tr><th>Title</th><th>Category</th><th>Date</th><th>Seats</th><th>Action</th></tr></thead>
           <tbody>
-            ${getEvents().map(e => `<tr><td>${e.title}</td><td>${e.category}</td><td>${e.date}</td><td>${e.registered}/${e.limit}</td></tr>`).join('')}
+            ${getEvents().map(e => `
+              <tr>
+                <td>${e.title}</td>
+                <td>${e.category}</td>
+                <td>${e.date}</td>
+                <td>${e.registered}/${e.limit}</td>
+                <td><button class="btn btn-secondary btn-sm" onclick="deleteEvent(${e.id})">Delete Event</button></td>
+              </tr>
+            `).join('')}
           </tbody>
         </table>
       </div>
     `;
   } else if (tab === 'participants') {
     content.innerHTML = `
-      <h3>Participants Management</h3>
+      <h3>Participant Approvals</h3>
       <div class="table-responsive" style="margin-top:15px;">
         <table>
-          <thead><tr><th>User</th><th>Event</th><th>Status</th><th>Action</th></tr></thead>
+          <thead><tr><th>Student Name</th><th>Event</th><th>Status</th><th>Action</th></tr></thead>
           <tbody>
             ${getRegs().map(r => `
               <tr>
@@ -281,6 +305,17 @@ function handleCreateEvent(e) {
   closeModal('createEventModal');
   renderEvents();
   switchTab('events');
+  alert("Event created successfully!");
+}
+
+function deleteEvent(eventId) {
+  if (!confirm("Are you sure you want to delete this event?")) return;
+  let events = getEvents();
+  events = events.filter(e => e.id !== eventId);
+  localStorage.setItem('es_events', JSON.stringify(events));
+  renderEvents();
+  switchTab('events');
+  alert("Event deleted successfully!");
 }
 
 function updateStatus(regId, newStatus) {
@@ -307,12 +342,29 @@ function filterCat(cat) {
 }
 
 function renderGallery() {
-  const imgs = [
-    "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=400",
-    "https://images.unsplash.com/photo-1511578314322-379afb476865?w=400",
-    "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400"
-  ];
-  document.getElementById('galleryGrid').innerHTML = imgs.map(src => `
-    <div class="gallery-item"><img src="${src}" alt="Gallery"></div>
-  `).join('');
+  const photos = getPhotos();
+  const grid = document.getElementById('galleryGrid');
+  
+  let html = photos.map(src => `<div class="gallery-item"><img src="${src}" alt="Gallery Photo"></div>`).join('');
+  
+  // If admin is logged in, show an "Add Photo" button option in the gallery grid
+  if (currentUser && currentUser.role === 'admin') {
+    html += `
+      <div class="gallery-item" style="display:flex; align-items:center; justify-content:center; background:#eee; border: 2px dashed #ff6b00; cursor:pointer;" onclick="promptAddPhoto()">
+        <span style="font-weight:bold; color:#ff6b00;">+ Add Photo</span>
+      </div>
+    `;
+  }
+  grid.innerHTML = html;
+}
+
+function promptAddPhoto() {
+  const url = prompt("Enter Image URL for the new gallery photo:");
+  if (url) {
+    const photos = getPhotos();
+    photos.push(url);
+    localStorage.setItem('es_photos', JSON.stringify(photos));
+    renderGallery();
+    alert("Photo added to gallery successfully!");
+  }
 }
