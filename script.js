@@ -18,7 +18,7 @@ if (!localStorage.getItem('es_events')) {
       limit: 50, 
       registered: 2, 
       head: "Prof. Sharma", 
-      img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBFU-6LV2oIZZl7lIb1RElXA1y2pVucufJWPTeSwxvgQ&s=10", 
+      img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBFU-6LV2oIZZl7lIb1RElXA1y2pVucufJWPTeSwxvgQ&s=10.jpg", 
       desc: "Annual showcase of student science projects." 
     },
     { 
@@ -32,7 +32,7 @@ if (!localStorage.getItem('es_events')) {
       limit: 100, 
       registered: 5, 
       head: "Coach Rajiv", 
-      img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0VM1s6d8CPPnAZfVJl-NkyltpiQIYihPH0vxz43xnuw&s=10", 
+      img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0VM1s6d8CPPnAZfVJl-NkyltpiQIYihPH0vxz43xnuw&s=10.jpg", 
       desc: "Football tournament for high school teams." 
     }
   ]));
